@@ -130,6 +130,14 @@ async function ntfy(title, msg, high) {
         if (hit.outOfStock != null) rec.inStock = !hit.outOfStock;
         rec.tiers = (hit.tiers || []).map(t => ({ qty: t.qty, each: paise(t.each) }));
       }
+      if (rec.price == null) {
+        const title = await page.title().catch(() => '?');
+        const txt = await page.evaluate(() => (document.body && document.body.innerText || '').slice(0, 400)).catch(() => '?');
+        const html = await page.content().catch(() => '');
+        console.log('DIAG title:', title);
+        console.log('DIAG body snippet:', JSON.stringify(txt));
+        console.log('DIAG bodies captured:', bodies.length, '| pvid in HTML:', html.includes(pvid), '| html bytes:', html.length);
+      }
     } catch (e) { console.log('ERROR', item.name, e.message); }
     console.log(item.name, '->', rec.price != null ? 'Rs ' + rec.price : 'FAILED',
       rec.tiers.length ? '| tiers: ' + rec.tiers.map(t => t.qty + '@' + t.each).join(',') : '');
