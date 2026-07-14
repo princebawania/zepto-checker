@@ -137,6 +137,17 @@ async function ntfy(title, msg, high) {
         console.log('DIAG title:', title);
         console.log('DIAG body snippet:', JSON.stringify(txt));
         console.log('DIAG bodies captured:', bodies.length, '| pvid in HTML:', html.includes(pvid), '| html bytes:', html.length);
+        global.DIAG = (global.DIAG || '') + [
+          'time: ' + new Date().toISOString(),
+          'item: ' + item.name,
+          'final url: ' + page.url(),
+          'title: ' + title,
+          'body snippet: ' + txt,
+          'network bodies: ' + bodies.length,
+          'pvid in HTML: ' + html.includes(pvid),
+          'html bytes: ' + html.length,
+          'html head snippet: ' + html.slice(0, 600).replace(/\s+/g, ' ')
+        ].join('\n') + '\n\n';
       }
     } catch (e) { console.log('ERROR', item.name, e.message); }
     console.log(item.name, '->', rec.price != null ? 'Rs ' + rec.price : 'FAILED',
@@ -144,7 +155,15 @@ async function ntfy(title, msg, high) {
     results.push(rec);
   }
   await browser.close();
-  if (results.every(r => r.price == null)) { console.log('All items failed - not updating gist.'); process.exit(1); }
+  if (results.every(r => r.price == null)) {
+    console.log('All items failed - not updating gist prices.');
+    try {
+      await gh('https://api.github.com/gists/' + GIST_ID, { method: 'PATCH',
+        body: JSON.stringify({ files: { 'diag.txt': { content: global.DIAG || 'no diagnostics captured' } } }) });
+      console.log('Diagnostics written to gist as diag.txt');
+    } catch (e) { console.log('diag upload failed:', e.message); }
+    process.exit(1);
+  }
 
   // merge into gist history
   const gist = await gh('https://api.github.com/gists/' + GIST_ID);
