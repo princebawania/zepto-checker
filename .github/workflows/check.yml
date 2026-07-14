@@ -1,0 +1,26 @@
+name: zepto-price-check
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # every 30 min, 24/7
+  workflow_dispatch: {}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Playwright
+        run: |
+          npm init -y > /dev/null
+          npm i playwright > /dev/null
+          npx playwright install --with-deps chromium
+      - name: Check prices
+        env:
+          ZEPTO_STATE: ${{ secrets.ZEPTO_STATE }}
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          GIST_ID: a8d7de4a05165f54b996d40ff174f546
+          NTFY_TOPIC: zepto-0npp5fgun4
+        run: node check.js

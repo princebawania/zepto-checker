@@ -1,0 +1,10 @@
+{
+  "comment": "Edit this list anytime (4-5 items works great). Each item needs: name (your label), url (Zepto product page URL - open the product on zepto.com and copy the address bar), alertBelow (in rupees, optional - macOS notification + dashboard alert when price <= this).",
+  "items": [
+    {
+      "name": "Relish Chicken Curry Cut (Without Skin)",
+      "url": "https://www.zepto.com/pn/relish-chicken-curry-cut-without-skin/pvid/9089788a-27de-403e-9bad-6d7cf4479f1c",
+      "alertBelow": 105
+    }
+  ]
+}
